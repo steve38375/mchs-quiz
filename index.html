@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CodeHS TN CSF – Units 2–6 Quiz</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:Arial,sans-serif;background:#1a0533;color:#fff;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}
+  #splash{text-align:center}
+  #splash h1{font-size:2.4rem;font-weight:900;color:#fff;margin-bottom:8px;letter-spacing:-1px}
+  #splash p{color:#cbb8e8;font-size:1.1rem;margin-bottom:30px}
+  #splash .unit-list{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:30px}
+  #splash .unit-pill{background:rgba(255,255,255,0.12);border-radius:20px;padding:6px 14px;font-size:0.85rem;color:#e0d0ff}
+  .btn-start{background:#46d160;color:#000;font-size:1.2rem;font-weight:900;border:none;border-radius:12px;padding:16px 48px;cursor:pointer;letter-spacing:0.5px;transition:transform .1s}
+  .btn-start:hover{transform:scale(1.04)}
+  #quiz{width:100%;max-width:860px;display:none}
+  .progress-bar{background:rgba(255,255,255,0.15);border-radius:99px;height:8px;margin-bottom:18px}
+  .progress-fill{background:#46d160;height:8px;border-radius:99px;transition:width .4s}
+  .q-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+  .q-num{font-size:0.85rem;color:#cbb8e8;font-weight:700;letter-spacing:1px;text-transform:uppercase}
+  .q-unit{font-size:0.8rem;background:rgba(255,255,255,0.12);border-radius:20px;padding:4px 12px;color:#e0d0ff}
+  .timer-ring{position:relative;width:52px;height:52px}
+  .timer-ring svg{transform:rotate(-90deg)}
+  .timer-ring circle{fill:none;stroke:#46d160;stroke-width:4;stroke-linecap:round;transition:stroke-dashoffset .9s linear,stroke .3s}
+  .timer-ring circle.bg{stroke:rgba(255,255,255,0.15)}
+  #timer-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:900;color:#fff}
+  .q-card{background:rgba(255,255,255,0.08);border-radius:18px;padding:28px 32px;margin-bottom:20px;font-size:1.25rem;font-weight:700;text-align:center;line-height:1.4;min-height:90px;display:flex;align-items:center;justify-content:center}
+  .answers{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .ans-btn{border:none;border-radius:14px;padding:18px 20px;font-size:1rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:12px;text-align:left;color:#fff;transition:transform .1s,opacity .2s}
+  .ans-btn:hover{transform:scale(1.02)}
+  .ans-btn.a{background:#e21b3c}
+  .ans-btn.b{background:#1368ce}
+  .ans-btn.c{background:#d89e00}
+  .ans-btn.d{background:#26890c}
+  .ans-btn .shape{width:36px;height:36px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;background:rgba(0,0,0,0.2)}
+  .ans-btn.correct{outline:4px solid #fff;animation:pop .2s}
+  .ans-btn.wrong{opacity:.4}
+  .ans-btn.disabled{cursor:default;pointer-events:none}
+  @keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.06)}100%{transform:scale(1)}}
+  #feedback{display:none;background:rgba(255,255,255,0.08);border-radius:18px;padding:22px 28px;margin-bottom:20px;text-align:center}
+  #feedback .verdict{font-size:1.5rem;font-weight:900;margin-bottom:6px}
+  #feedback .explanation{font-size:0.95rem;color:#cbb8e8;line-height:1.5}
+  .btn-next{display:block;width:100%;background:#46d160;color:#000;font-size:1.1rem;font-weight:900;border:none;border-radius:12px;padding:14px;cursor:pointer;margin-top:8px;transition:transform .1s}
+  .btn-next:hover{transform:scale(1.02)}
+  #scoreboard{display:none;text-align:center;max-width:600px;width:100%}
+  #scoreboard h2{font-size:2rem;font-weight:900;margin-bottom:8px}
+  #scoreboard .score-big{font-size:4rem;font-weight:900;color:#46d160;margin:16px 0}
+  #scoreboard .score-label{color:#cbb8e8;font-size:1rem;margin-bottom:24px}
+  .unit-scores{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:20px 0;text-align:left}
+  .unit-score-card{background:rgba(255,255,255,0.08);border-radius:12px;padding:14px 18px}
+  .unit-score-card .unit-name{font-size:0.8rem;color:#cbb8e8;margin-bottom:4px}
+  .unit-score-card .unit-frac{font-size:1.2rem;font-weight:700}
+  .btn-restart{background:#fff;color:#1a0533;font-size:1rem;font-weight:900;border:none;border-radius:12px;padding:14px 36px;cursor:pointer;margin-top:10px}
+</style>
+</head>
+<body>
+
+<div id="splash">
+  <h1>🎮 CodeHS Quiz</h1>
+  <p>Tennessee CS Foundations &nbsp;·&nbsp; Units 2–6 &nbsp;·&nbsp; 40 Questions</p>
+  <div class="unit-list">
+    <span class="unit-pill">Unit 2: What is Computing?</span>
+    <span class="unit-pill">Unit 3: Electrical Circuits</span>
+    <span class="unit-pill">Unit 4: Web Design</span>
+    <span class="unit-pill">Unit 5: Create a Website</span>
+    <span class="unit-pill">Unit 6: Digital Information</span>
+  </div>
+  <div style="margin-bottom:20px">
+    <input type="text" id="student-name" placeholder="Enter your name" 
+      style="font-size:1.1rem;padding:12px 20px;border-radius:12px;border:2px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.1);color:#fff;width:300px;text-align:center;outline:none"
+      onkeydown="if(event.key==='Enter')startQuiz()"/>
+  </div>
+  <button class="btn-start" onclick="startQuiz()">Start Quiz &nbsp;▶</button>
+</div>
+
+<div id="quiz">
+  <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+  <div class="q-meta">
+    <span class="q-num" id="q-num">Question 1 of 50</span>
+    <div class="timer-ring">
+      <svg width="52" height="52" viewBox="0 0 52 52">
+        <circle class="bg" cx="26" cy="26" r="22"/>
+        <circle id="timer-arc" cx="26" cy="26" r="22" stroke-dasharray="138.2" stroke-dashoffset="0"/>
+      </svg>
+      <div id="timer-num">20</div>
+    </div>
+    <span class="q-unit" id="q-unit">Unit 1</span>
+  </div>
+  <div class="q-card" id="q-text"></div>
+  <div class="answers" id="answers"></div>
+  <div id="feedback">
+    <div class="verdict" id="verdict-text"></div>
+    <div class="explanation" id="explain-text"></div>
+  </div>
+  <button class="btn-next" id="btn-next" style="display:none" onclick="nextQ()">Next Question ▶</button>
+</div>
+
+<div id="scoreboard">
+  <h2>🏆 Quiz Complete!</h2>
+  <p id="score-name" style="color:#cbb8e8;font-size:1rem;margin-bottom:4px"></p>
+  <div class="score-big" id="final-score"></div>
+  <div class="score-label">questions correct out of 40</div>
+  <div class="unit-scores" id="unit-scores"></div>
+  <button class="btn-restart" onclick="location.reload()">Play Again</button>
+</div>
+
+<script>
+const QUESTIONS = [
+  // ── Unit 1: Programming with Karel (10 questions) ────────────────────────
+  // ── Unit 2: What is Computing? (8 questions) ─────────────────────────────
+  {unit:"Unit 2: Computing", q:"Who is credited with writing the first computer program?",
+   a:["Charles Babbage","Grace Hopper","Ada Lovelace","Alan Turing"], correct:2,
+   explain:"Ada Lovelace wrote the first algorithm intended for a machine — Charles Babbage's Analytical Engine — making her the first programmer."},
+  {unit:"Unit 2: Computing", q:"What are the four main components of every computer system?",
+   a:["Input, Output, Storage, Processing","Keyboard, Mouse, Monitor, CPU","Hardware, Software, Internet, Power","RAM, ROM, GPU, CPU"], correct:0,
+   explain:"Every computer system has input (receive data), output (display results), storage (save data), and processing (CPU work)."},
+  {unit:"Unit 2: Computing", q:"What is an operating system?",
+   a:["A word processing program","Software that manages hardware and software resources","The physical parts of a computer","A type of web browser"], correct:1,
+   explain:"An operating system like Windows, macOS, or ChromeOS manages all the hardware and software on a computer."},
+  {unit:"Unit 2: Computing", q:"Which of the following is hardware?",
+   a:["Microsoft Word","Google Chrome","RAM","The operating system"], correct:2,
+   explain:"RAM (Random Access Memory) is a physical hardware component inside a computer. The others are software."},
+  {unit:"Unit 2: Computing", q:"Alan Turing is best known for:",
+   a:["Inventing the computer mouse","Building the ENIAC","Developing foundational concepts of computation","Creating the Windows operating system"], correct:2,
+   explain:"Turing developed foundational concepts of computation and is considered the father of theoretical computer science and AI."},
+  {unit:"Unit 2: Computing", q:"What is the difference between hardware and software?",
+   a:["Hardware is newer than software","Hardware is physical; software is programs and data","Software costs more than hardware","There is no difference"], correct:1,
+   explain:"Hardware refers to physical components you can touch (CPU, RAM, keyboard). Software refers to programs and data (apps, OS)."},
+  {unit:"Unit 2: Computing", q:"Which computing pioneer helped program ENIAC and is known for compiler development?",
+   a:["Ada Lovelace","Grace Hopper","Mark Dean","Alan Turing"], correct:1,
+   explain:"Grace Hopper was a pioneer who worked on ENIAC and developed the first compiler, making programming more accessible."},
+  {unit:"Unit 2: Computing", q:"What does RAM stand for?",
+   a:["Read and Memory","Random Access Memory","Remote Application Module","Read All Media"], correct:1,
+   explain:"RAM stands for Random Access Memory — it's the short-term memory your computer uses while running programs."},
+
+  // ── Unit 3: Electrical Circuits (7 questions) ────────────────────────────
+  {unit:"Unit 3: Circuits", q:"What does Ohm's Law state?",
+   a:["V = I × R","P = V + I","R = V + I","I = V × R"], correct:0,
+   explain:"Ohm's Law: Voltage (V) = Current (I) × Resistance (R). This is the fundamental relationship in electrical circuits."},
+  {unit:"Unit 3: Circuits", q:"What does an AND gate output?",
+   a:["1 if either input is 1","1 only if both inputs are 1","0 if both inputs are 1","1 if both inputs are 0"], correct:1,
+   explain:"An AND gate outputs 1 (true) only when ALL inputs are 1. If any input is 0, the output is 0."},
+  {unit:"Unit 3: Circuits", q:"What does an OR gate output?",
+   a:["1 only if both inputs are 1","0 if either input is 1","1 if at least one input is 1","0 always"], correct:2,
+   explain:"An OR gate outputs 1 if at least one input is 1. It only outputs 0 when all inputs are 0."},
+  {unit:"Unit 3: Circuits", q:"What tool is used to measure voltage, current, and resistance?",
+   a:["Oscilloscope","Multimeter","Voltmeter only","Ammeter only"], correct:1,
+   explain:"A multimeter can measure voltage, current, and resistance — all in one device, making it essential for circuit work."},
+  {unit:"Unit 3: Circuits", q:"What platform does CodeHS use to simulate circuits?",
+   a:["Arduino IDE","Scratch","Tinkercad","Circuit Playground"], correct:2,
+   explain:"CodeHS uses Tinkercad Circuits to let students build and test virtual electrical circuits in a browser."},
+  {unit:"Unit 3: Circuits", q:"What unit is electrical resistance measured in?",
+   a:["Volts","Amperes","Ohms","Watts"], correct:2,
+   explain:"Resistance is measured in Ohms (Ω), named after Georg Ohm who developed Ohm's Law."},
+  {unit:"Unit 3: Circuits", q:"In a logic gate truth table, what does 0 represent?",
+   a:["High voltage / True","Low voltage / False","No connection","Error state"], correct:1,
+   explain:"In binary logic, 0 represents False or low voltage (off), and 1 represents True or high voltage (on)."},
+
+  // ── Unit 4: Web Design (10 questions) ────────────────────────────────────
+  {unit:"Unit 4: Web Design", q:"What does HTML stand for?",
+   a:["Hyper Text Markup Language","High Tech Modern Language","Hyper Transfer Method Language","Home Tool Markup Language"], correct:0,
+   explain:"HTML stands for HyperText Markup Language — the standard language for creating the structure of web pages."},
+  {unit:"Unit 4: Web Design", q:"Which HTML tag creates a hyperlink?",
+   a:["<link>","<href>","<a>","<url>"], correct:2,
+   explain:"The <a> (anchor) tag creates hyperlinks. The href attribute specifies where the link goes."},
+  {unit:"Unit 4: Web Design", q:"What does CSS stand for?",
+   a:["Computer Style Sheets","Cascading Style Sheets","Creative Styling System","Coded Style Syntax"], correct:1,
+   explain:"CSS stands for Cascading Style Sheets — it controls the visual appearance and layout of HTML elements."},
+  {unit:"Unit 4: Web Design", q:"Which CSS selector targets an element by class?",
+   a:["#myClass","myClass","*myClass",".myClass"], correct:3,
+   explain:"A period (.) before the name selects elements by class. Example: .myClass { color: red; }"},
+  {unit:"Unit 4: Web Design", q:"Which HTML tag embeds an image on a page?",
+   a:["<image>","<picture>","<img>","<photo>"], correct:2,
+   explain:"The <img> tag embeds images. It uses the src attribute to specify the image file."},
+  {unit:"Unit 4: Web Design", q:"Which HTML tag makes text bold?",
+   a:["<bold>","<b>","<strong> or <b>","<em>"], correct:2,
+   explain:"Both <b> and <strong> make text bold. <strong> also indicates the text is important for screen readers."},
+  {unit:"Unit 4: Web Design", q:"What does the CSS ID selector use?",
+   a:["A period (.)","A hashtag (#)","An asterisk (*)","A colon (:)"], correct:1,
+   explain:"The # symbol selects an element by its unique ID. Example: #myId { color: blue; }"},
+  {unit:"Unit 4: Web Design", q:"Which HTML tag creates an unordered (bulleted) list?",
+   a:["<ol>","<li>","<ul>","<list>"], correct:2,
+   explain:"<ul> creates an unordered list with bullet points. <ol> creates an ordered (numbered) list."},
+  {unit:"Unit 4: Web Design", q:"What attribute specifies where a link goes in an <a> tag?",
+   a:["src","href","link","url"], correct:1,
+   explain:"The href (hypertext reference) attribute tells the browser where to navigate when the link is clicked."},
+  {unit:"Unit 4: Web Design", q:"What does a CSS class selector allow you to do?",
+   a:["Style only one unique element","Style multiple elements with the same style","Target the entire page","Only style headings"], correct:1,
+   explain:"A class can be applied to multiple elements, letting you style a group of elements the same way with one rule."},
+
+  // ── Unit 5: Create a Website (5 questions) ───────────────────────────────
+  {unit:"Unit 5: Website Project", q:"What is a sitemap?",
+   a:["A map of geographic locations","A plan showing the structure and pages of a website","A CSS layout technique","A type of HTML table"], correct:1,
+   explain:"A sitemap is a visual or text plan that shows all the pages of a website and how they connect to each other."},
+  {unit:"Unit 5: Website Project", q:"What is the purpose of surveying customer needs before building a website?",
+   a:["To make the site look better","To understand what users actually need from the site","To write more HTML","To choose colors"], correct:1,
+   explain:"Surveying customer needs ensures you build something useful for real users — a key principle of good design."},
+  {unit:"Unit 5: Website Project", q:"What does a project timeline help you do?",
+   a:["Make the website load faster","Decide on colors","Plan when each part of the project will be completed","Choose which HTML tags to use"], correct:2,
+   explain:"A project timeline breaks the work into scheduled tasks so you can manage time and meet your deadline."},
+  {unit:"Unit 5: Website Project", q:"What is the main advantage of working in teams on a website project?",
+   a:["You need less HTML","Different people can work on different parts simultaneously","The website runs faster","You don't need CSS"], correct:1,
+   explain:"Teamwork allows parallel work — one person can work on design while another works on content, saving time."},
+  {unit:"Unit 5: Website Project", q:"What is the first step in building a good website project?",
+   a:["Write all the HTML first","Define your objectives and what the site should accomplish","Pick your colors","Create the CSS file"], correct:1,
+   explain:"Determining your objectives first ensures your design decisions are guided by a clear purpose and user need."},
+
+  // ── Unit 6: Digital Information (10 questions) ───────────────────────────
+  {unit:"Unit 6: Digital Info", q:"What is digital information?",
+   a:["Information stored only on paper","Data represented using discrete values like 0s and 1s","Information that can only be seen on a screen","Data stored in the cloud"], correct:1,
+   explain:"Digital information uses discrete values — binary (0s and 1s) — to represent all types of data including text, images, and sound."},
+  {unit:"Unit 6: Digital Info", q:"What is the base of the binary number system?",
+   a:["Base 8","Base 10","Base 2","Base 16"], correct:2,
+   explain:"Binary is base 2, meaning it uses only two digits: 0 and 1. Every binary place value is a power of 2."},
+  {unit:"Unit 6: Digital Info", q:"What is the decimal value of the binary number 1010?",
+   a:["5","8","10","12"], correct:2,
+   explain:"1010 in binary = (1×8) + (0×4) + (1×2) + (0×1) = 8 + 0 + 2 + 0 = 10."},
+  {unit:"Unit 6: Digital Info", q:"What does ASCII stand for?",
+   a:["American Standard Code for Information Interchange","Automated System for Computer Input Interface","A Standard Code for Internet and Images","American Software Code for Information Index"], correct:0,
+   explain:"ASCII stands for American Standard Code for Information Interchange — it assigns numbers to characters so computers can store text."},
+  {unit:"Unit 6: Digital Info", q:"How many symbols does hexadecimal use?",
+   a:["8","10","16","32"], correct:2,
+   explain:"Hexadecimal (base 16) uses 16 symbols: digits 0–9 and letters A–F, where A=10 through F=15."},
+  {unit:"Unit 6: Digital Info", q:"What is a pixel?",
+   a:["A type of file format","The smallest unit of a digital image","A color mixing tool","A measurement of screen size"], correct:1,
+   explain:"A pixel (picture element) is the smallest unit of a digital image. Images are made up of a grid of pixels."},
+  {unit:"Unit 6: Digital Info", q:"In RGB color, what does the R stand for?",
+   a:["Resolution","Raster","Red","Range"], correct:2,
+   explain:"RGB stands for Red, Green, Blue — the three color channels used to represent colors in digital images."},
+  {unit:"Unit 6: Digital Info", q:"What is data compression?",
+   a:["Making data larger for storage","Reducing the size of data while preserving information","Encrypting data for security","Converting data from binary to text"], correct:1,
+   explain:"Data compression reduces the size of data files, saving storage space and reducing transmission time."},
+  {unit:"Unit 6: Digital Info", q:"What is the difference between lossy and lossless compression?",
+   a:["Lossy is faster; lossless is slower","Lossy permanently removes some data; lossless keeps all data","Lossless is for images only; lossy is for text","There is no difference"], correct:1,
+   explain:"Lossy compression (like JPEG) permanently removes some data to achieve smaller sizes. Lossless (like PNG) keeps all original data."},
+  {unit:"Unit 6: Digital Info", q:"What is hexadecimal commonly used for in web design?",
+   a:["Naming HTML files","Defining font sizes","Representing colors with codes like #FF5733","Writing JavaScript"], correct:2,
+   explain:"In web design, hex color codes like #FF5733 represent RGB colors — each pair of hex digits (FF, 57, 33) represents Red, Green, Blue values."},
+];
+
+let current = 0, score = 0, timer, timeLeft, studentName = "";
+const unitScores = {};
+
+function startQuiz(){
+  const name = document.getElementById('student-name').value.trim();
+  if(!name){ 
+    document.getElementById('student-name').style.borderColor='#e21b3c';
+    document.getElementById('student-name').placeholder='Please enter your name first!';
+    return; 
+  }
+  studentName = name;
+  document.getElementById('splash').style.display='none';
+  document.getElementById('quiz').style.display='block';
+  showQ();
+}
+
+function showQ(){
+  const q = QUESTIONS[current];
+  document.getElementById('q-num').textContent = `Question ${current+1} of ${QUESTIONS.length}`;
+  document.getElementById('q-unit').textContent = q.unit;
+  document.getElementById('q-text').textContent = q.q;
+  document.getElementById('progress').style.width = `${(current/QUESTIONS.length)*100}%`;
+  document.getElementById('feedback').style.display='none';
+  document.getElementById('btn-next').style.display='none';
+
+  const colors=['a','b','c','d'];
+  const shapes=['▲','◆','●','■'];
+  const ans = document.getElementById('answers');
+  ans.innerHTML='';
+  q.a.forEach((txt,i)=>{
+    const btn=document.createElement('button');
+    btn.className=`ans-btn ${colors[i]}`;
+    btn.innerHTML=`<span class="shape">${shapes[i]}</span>${txt}`;
+    btn.onclick=()=>answer(i);
+    ans.appendChild(btn);
+  });
+
+  startTimer();
+}
+
+function startTimer(){
+  timeLeft=20;
+  const arc=document.getElementById('timer-arc');
+  const num=document.getElementById('timer-num');
+  const circ=138.2;
+  arc.style.stroke='#46d160';
+  clearInterval(timer);
+  timer=setInterval(()=>{
+    timeLeft--;
+    num.textContent=timeLeft;
+    arc.style.strokeDashoffset = circ - (timeLeft/20)*circ;
+    if(timeLeft<=5) arc.style.stroke='#e21b3c';
+    if(timeLeft<=0){
+      clearInterval(timer);
+      answer(-1);
+    }
+  },1000);
+}
+
+function answer(idx){
+  clearInterval(timer);
+  const q=QUESTIONS[current];
+  const btns=document.querySelectorAll('.ans-btn');
+  btns.forEach((b,i)=>{
+    b.classList.add('disabled');
+    if(i===q.correct) b.classList.add('correct');
+    else b.classList.add('wrong');
+  });
+
+  const fb=document.getElementById('feedback');
+  const verd=document.getElementById('verdict-text');
+  const exp=document.getElementById('explain-text');
+  const unit=q.unit;
+  if(!unitScores[unit]) unitScores[unit]={correct:0,total:0};
+  unitScores[unit].total++;
+
+  if(idx===q.correct){
+    score++;
+    unitScores[unit].correct++;
+    verd.textContent='✅ Correct!';
+    verd.style.color='#46d160';
+  } else if(idx===-1){
+    verd.textContent='⏱️ Time\'s up!';
+    verd.style.color='#f59e0b';
+  } else {
+    verd.textContent='❌ Not quite!';
+    verd.style.color='#e21b3c';
+  }
+  exp.textContent=q.explain;
+  fb.style.display='block';
+  document.getElementById('btn-next').style.display='block';
+}
+
+function nextQ(){
+  current++;
+  if(current>=QUESTIONS.length){
+    showScore();
+  } else {
+    showQ();
+  }
+}
+
+function showScore(){
+  document.getElementById('quiz').style.display='none';
+  const sb=document.getElementById('scoreboard');
+  sb.style.display='block';
+  document.getElementById('final-score').textContent=`${score} / ${QUESTIONS.length}`;
+  document.getElementById('score-name').textContent=studentName;
+
+  const unitDiv=document.getElementById('unit-scores');
+  unitDiv.innerHTML='';
+  Object.entries(unitScores).forEach(([unit,{correct,total}])=>{
+    const card=document.createElement('div');
+    card.className='unit-score-card';
+    const pct=Math.round((correct/total)*100);
+    card.innerHTML=`<div class="unit-name">${unit}</div><div class="unit-frac">${correct}/${total} <span style="color:#cbb8e8;font-size:.85rem">(${pct}%)</span></div>`;
+    unitDiv.appendChild(card);
+  });
+
+  // Auto-submit score to Google Form
+  const formUrl = "https://docs.google.com/forms/d/e/1FAIpQLSfJ0SIzZ1-G5P0u1dWE5LvyH26WxkLQXPMRVo_7UW-_H_6ZAA/viewform?entry.1397883755=" + encodeURIComponent(studentName) +
+    "&entry.631909801=" + encodeURIComponent(score + " / " + QUESTIONS.length);
+  
+  // Open form in background iframe for silent submit
+  const iframe = document.createElement('iframe');
+  iframe.style.display = 'none';
+  iframe.src = formUrl.replace('viewform', 'formResponse');
+  document.body.appendChild(iframe);
+
+  // Also show a manual submit button as backup
+  const existingBtn = document.getElementById('submit-score-btn');
+  if(!existingBtn){
+    const sb = document.getElementById('scoreboard');
+    const btn = document.createElement('button');
+    btn.id = 'submit-score-btn';
+    btn.className = 'btn-restart';
+    btn.style.background = '#4285f4';
+    btn.style.color = '#fff';
+    btn.style.marginRight = '10px';
+    btn.textContent = '📤 Submit Score to Teacher';
+    btn.onclick = () => window.open(formUrl, '_blank');
+    sb.insertBefore(btn, sb.querySelector('.btn-restart'));
+  }
+}
+</script>
+</body>
+</html>
